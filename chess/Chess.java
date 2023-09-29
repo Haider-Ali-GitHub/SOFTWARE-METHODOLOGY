@@ -2,6 +2,9 @@ package chess;
 
 import java.util.ArrayList;
 
+import chess.ReturnPiece.PieceFile;
+import chess.ReturnPiece.PieceType;
+
 class ReturnPiece {
 	static enum PieceType {WP, WR, WN, WB, WQ, WK, 
 		            BP, BR, BN, BB, BK, BQ};
@@ -50,6 +53,8 @@ public class Chess {
 	public static ReturnPlay play(String move) {
 
 		/* FILL IN THIS METHOD */
+
+
 		
 		/* FOLLOWING LINE IS A PLACEHOLDER TO MAKE COMPILER HAPPY */
 		/* WHEN YOU FILL IN THIS METHOD, YOU NEED TO RETURN A ReturnPlay OBJECT */
@@ -62,5 +67,23 @@ public class Chess {
 	 */
 	public static void start() {
 		/* FILL IN THIS METHOD */
+		ArrayList<ReturnPiece> board = new ArrayList<>();
+
+
+		//Pawns 
+		for (PieceFile file : PieceFile.values())
+		{
+			ReturnPiece whitePawn = new ReturnPiece();
+			whitePawn.pieceFile = file;
+			whitePawn.pieceRank = 2;
+			whitePawn.pieceType = PieceType.WP;
+			board.add(whitePawn);
+	
+			ReturnPiece blackPawn = new ReturnPiece();
+			blackPawn.pieceFile = file;
+			blackPawn.pieceRank = 7;
+			blackPawn.pieceType = PieceType.BP;
+			board.add(blackPawn);
+		}
 	}
 }
