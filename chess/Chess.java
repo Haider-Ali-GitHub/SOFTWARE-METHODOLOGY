@@ -85,5 +85,36 @@ public class Chess {
 			blackPawn.pieceType = PieceType.BP;
 			board.add(blackPawn);
 		}
+
+		//ROOKS 
+		// Initialize white rooks
+		ReturnPiece whiteRook1 = new ReturnPiece();
+		whiteRook1.pieceFile = PieceFile.a;
+		whiteRook1.pieceRank = 1;
+		whiteRook1.pieceType = PieceType.WR;
+		board.add(whiteRook1);
+
+		ReturnPiece whiteRook2 = new ReturnPiece();
+		whiteRook2.pieceFile = PieceFile.h;
+		whiteRook2.pieceRank = 1;
+		whiteRook2.pieceType = PieceType.WR;
+		board.add(whiteRook2);
+
+		// Initialize black rooks
+		ReturnPiece blackRook1 = new ReturnPiece();
+		blackRook1.pieceFile = PieceFile.a;
+		blackRook1.pieceRank = 8;
+		blackRook1.pieceType = PieceType.BR;
+		board.add(blackRook1);
+
+		ReturnPiece blackRook2 = new ReturnPiece();
+		blackRook2.pieceFile = PieceFile.h;
+		blackRook2.pieceRank = 8;
+		blackRook2.pieceType = PieceType.BR;
+		board.add(blackRook2);
+
+
+		
+	
 	}
 }
