@@ -41,7 +41,7 @@ public class Chess {
 	
 	enum Player { white, black }
 	private static Player currentPlayer;
-	
+
 	/**
 	 * Plays the next move for whichever player has the turn.
 	 * 
@@ -54,6 +54,19 @@ public class Chess {
 	public static ReturnPlay play(String move) {
 
 		/* FILL IN THIS METHOD */
+
+		String[] parts = move.split(" "); 
+		
+		if (parts.length != 2) {
+			// error case
+			ReturnPlay rp = new ReturnPlay();
+			rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			return rp;
+		}
+		
+
+
+
 
 
 		
@@ -69,7 +82,7 @@ public class Chess {
 	public static void start() {
 		/* FILL IN THIS METHOD */
 		ArrayList<ReturnPiece> board = new ArrayList<>();
-		private static Player currentPlayer;
+	
 
 
 		//Pawns 
@@ -86,7 +99,7 @@ public class Chess {
 			blackPawn.pieceRank = 7;
 			blackPawn.pieceType = PieceType.BP;
 			board.add(blackPawn);
-		}
+		}	
 
 		//ROOKS 
 		// Initialize white rooks
@@ -102,6 +115,7 @@ public class Chess {
 		whiteRook2.pieceType = PieceType.WR;
 		board.add(whiteRook2);
 
+		
 		// Initialize black rooks
 		ReturnPiece blackRook1 = new ReturnPiece();
 		blackRook1.pieceFile = PieceFile.a;
@@ -171,7 +185,7 @@ public class Chess {
 		board.add(blackBishop2);
 
 
-		//Queems 
+		//Queens 
 		// Initialize white queen
 		ReturnPiece whiteQueen = new ReturnPiece();
 		whiteQueen.pieceFile = PieceFile.d;
@@ -203,13 +217,6 @@ public class Chess {
 		
 
 		// Set the current player to white
-	
 		currentPlayer  = Player.white;
-		
-
-
-
-		
-	
 	}
 }
