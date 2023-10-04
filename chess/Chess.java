@@ -63,6 +63,13 @@ public class Chess {
 			rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
 			return rp;
 		}
+
+	    // Extracting source and destination from the move string
+		PieceFile sourceFile = PieceFile.valueOf(parts[0].substring(0, 1));
+		int sourceRank = Integer.parseInt(parts[0].substring(1, 2));
+
+		PieceFile destFile = PieceFile.valueOf(parts[1].substring(0, 1));
+		int destRank = Integer.parseInt(parts[1].substring(1, 2));
 		
 
 
