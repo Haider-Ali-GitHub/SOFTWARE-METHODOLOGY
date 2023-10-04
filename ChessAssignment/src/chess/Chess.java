@@ -41,6 +41,10 @@ public class Chess {
 	
 	enum Player { white, black }
 	private static Player currentPlayer;
+	private static ArrayList<ReturnPiece> board; 
+
+	// ArrayList<ReturnPiece> board = new ArrayList<>();
+
 
 	/**
 	 * Plays the next move for whichever player has the turn.
