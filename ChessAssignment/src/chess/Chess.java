@@ -75,10 +75,24 @@ public class Chess {
 		PieceFile destFile = PieceFile.valueOf(parts[1].substring(0, 1));
 		int destRank = Integer.parseInt(parts[1].substring(1, 2));
 		
+		
+		ReturnPlay rp = new ReturnPlay(); 
 
 
-
-
+		ReturnPiece movingPiece = null; 
+		for (ReturnPiece piece : board) {
+			if (piece.pieceFile == sourceFile && piece.pieceRank == sourceRank) {
+				movingPiece = piece;
+				break;
+			}
+		}
+		
+		// Check if no piece was found or it's not the current player's piece
+		if (movingPiece == null || (currentPlayer == Player.white && movingPiece.pieceType.toString().startsWith("B")) ||
+			(currentPlayer == Player.black && movingPiece.pieceType.toString().startsWith("W"))) {
+				rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
+				return rp;
+			}		
 
 		
 		/* FOLLOWING LINE IS A PLACEHOLDER TO MAKE COMPILER HAPPY */
