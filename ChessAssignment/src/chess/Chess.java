@@ -94,11 +94,66 @@ public class Chess {
 				return rp;
 			}		
 
-		
+		// Validate the move (very basic check, many other validations missing)
+		if (isValidMove(movingPiece, destFile, destRank)) {
+			movingPiece.pieceFile = destFile;
+			movingPiece.pieceRank = destRank;
+			// Remove any piece at the destination
+			board.removeIf(piece -> piece.pieceFile == destFile && piece.pieceRank == destRank);
+		} else {
+			rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			return rp;
+		}
+	
+		// Switch the current player
+		currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;
+	
+		rp.piecesOnBoard = board;
+		return rp;
 		/* FOLLOWING LINE IS A PLACEHOLDER TO MAKE COMPILER HAPPY */
 		/* WHEN YOU FILL IN THIS METHOD, YOU NEED TO RETURN A ReturnPlay OBJECT */
-		return null;
+		// return null;
 	}
+
+	private static boolean isValidMove(ReturnPiece piece, PieceFile destFile, int destRank) {
+		switch (piece.pieceType) {
+			case WP:
+				// Basic pawn move for white, allowing 2-square move from starting position
+				return (piece.pieceRank == destRank - 1 && piece.pieceFile == destFile) || 
+					   (piece.pieceRank == 2 && destRank == 4 && piece.pieceFile == destFile);
+			case BP:
+				// Basic pawn move for black, allowing 2-square move from starting position
+				return (piece.pieceRank == destRank + 1 && piece.pieceFile == destFile) || 
+					   (piece.pieceRank == 7 && destRank == 5 && piece.pieceFile == destFile);
+			case WN:
+			case BN:
+				// Basic knight move
+				int rankDifference = Math.abs(piece.pieceRank - destRank);
+				int fileDifference = Math.abs(piece.pieceFile.ordinal() - destFile.ordinal());
+				return (rankDifference == 1 && fileDifference == 2) || (rankDifference == 2 && fileDifference == 1);
+			case WR:
+			case BR:
+				// Basic rook move (not accounting for pieces in the path)
+				return (piece.pieceFile == destFile || piece.pieceRank == destRank);
+			case WB:
+			case BB:
+				// Basic bishop move (not accounting for pieces in the path)
+				return Math.abs(piece.pieceRank - destRank) == Math.abs(piece.pieceFile.ordinal() - destFile.ordinal());
+			case WQ:
+			case BQ:
+				// Basic queen move (not accounting for pieces in the path)
+				int rankDiff = Math.abs(piece.pieceRank - destRank);
+				int fileDiff = Math.abs(piece.pieceFile.ordinal() - destFile.ordinal());
+				return (piece.pieceFile == destFile || piece.pieceRank == destRank || rankDiff == fileDiff);
+			case WK:
+			case BK:
+				// Basic king move
+				return Math.abs(piece.pieceRank - destRank) <= 1 && Math.abs(piece.pieceFile.ordinal() - destFile.ordinal()) <= 1;
+			default:
+				return false;
+		}
+	}
+	
 	
 	
 	/**
