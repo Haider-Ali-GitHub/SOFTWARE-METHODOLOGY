@@ -161,9 +161,15 @@ public class Chess {
 	 */
 	public static void start() {
 		/* FILL IN THIS METHOD */
-		ArrayList<ReturnPiece> board = new ArrayList<>();
+		// ArrayList<ReturnPiece> board = new ArrayList<>();
 	
-
+		// If board is not null, clear it to ensure that we're starting fresh
+		if (board != null) {
+			board.clear();
+		} else {
+			// Initialize the board ArrayList
+			board = new ArrayList<>();
+		}
 
 		//Pawns 
 		for (PieceFile file : PieceFile.values())
@@ -297,6 +303,7 @@ public class Chess {
 		
 
 		// Set the current player to white
-		currentPlayer  = Player.white;
+		currentPlayer  = Player.white;	
 	}
+
 }
