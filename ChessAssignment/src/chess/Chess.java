@@ -57,101 +57,68 @@ public class Chess {
 	 */
 	public static ReturnPlay play(String move) {
 
-		/* FILL IN THIS METHOD */
+    //...
 
-		String[] parts = move.split(" "); 
-		
-		if (parts.length != 2) {
-			// error case
-			ReturnPlay rp = new ReturnPlay();
-			rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
-			return rp;
-		}
+    String[] parts = move.split(" ");
+    
+    if (parts.length != 2) {
+        // error case
+        ReturnPlay rp = new ReturnPlay();
+        rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
+        return rp;
+    }
 
-	    // Extracting source and destination from the move string
-		PieceFile sourceFile = PieceFile.valueOf(parts[0].substring(0, 1));
-		int sourceRank = Integer.parseInt(parts[0].substring(1, 2));
+    PieceFile sourceFile = PieceFile.valueOf(parts[0].substring(0, 1));
+    int sourceRank = Integer.parseInt(parts[0].substring(1, 2));
 
-		PieceFile destFile = PieceFile.valueOf(parts[1].substring(0, 1));
-		int destRank = Integer.parseInt(parts[1].substring(1, 2));
-		
-		
-		ReturnPlay rp = new ReturnPlay(); 
+    PieceFile destFile = PieceFile.valueOf(parts[1].substring(0, 1));
+    int destRank = Integer.parseInt(parts[1].substring(1, 2));
+    
+    ReturnPlay rp = new ReturnPlay(); 
 
+    ReturnPiece movingPiece = null; 
+    for (ReturnPiece piece : board) {
+        if (piece.pieceFile == sourceFile && piece.pieceRank == sourceRank) {
+            movingPiece = piece;
+            break;
+        }
+    }
 
-		ReturnPiece movingPiece = null; 
-		for (ReturnPiece piece : board) {
-			if (piece.pieceFile == sourceFile && piece.pieceRank == sourceRank) {
-				movingPiece = piece;
-				break;
-			}
-		}
-		
-		// Check if no piece was found or it's not the current player's piece
-		if (movingPiece == null || (currentPlayer == Player.white && movingPiece.pieceType.toString().startsWith("B")) ||
-			(currentPlayer == Player.black && movingPiece.pieceType.toString().startsWith("W"))) {
-				rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
-				return rp;
-			}		
+    // Check if no piece was found or it's not the current player's piece
+    if (movingPiece == null || (currentPlayer == Player.white && movingPiece.pieceType.toString().startsWith("B")) ||
+        (currentPlayer == Player.black && movingPiece.pieceType.toString().startsWith("W"))) {
+            rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
+            return rp;
+        }
 
-		// Validate the move (very basic check, many other validations missing)
-		if (isValidMove(movingPiece, destFile, destRank)) {
-			movingPiece.pieceFile = destFile;
-			movingPiece.pieceRank = destRank;
-			// Remove any piece at the destination
-			board.removeIf(piece -> piece.pieceFile == destFile && piece.pieceRank == destRank);
-		} else {
-			rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
-			return rp;
-		}
-	
-		// Switch the current player
-		currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;
-	
-		rp.piecesOnBoard = board;
-		return rp;
-		/* FOLLOWING LINE IS A PLACEHOLDER TO MAKE COMPILER HAPPY */
-		/* WHEN YOU FILL IN THIS METHOD, YOU NEED TO RETURN A ReturnPlay OBJECT */
-		// return null;
-	}
+    // Further validations for legality of moves, checks, and checkmates would go here
+
+    // Validate the move (very basic check, many other validations missing)
+    if (isValidMove(movingPiece, destFile, destRank)) {
+        // Perform the move, update piece's position
+        movingPiece.pieceFile = destFile;
+        movingPiece.pieceRank = destRank;
+
+        // Remove any opponent piece at the destination
+        board.removeIf(piece -> piece.pieceFile == destFile && piece.pieceRank == destRank);
+
+        // Check for check/checkmate/stalemate/draw scenarios here
+
+    } else {
+        rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
+        return rp;
+    }
+
+    // Switch the current player
+    currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;
+
+    rp.piecesOnBoard = board;
+    return rp;
+}
+
 
 	private static boolean isValidMove(ReturnPiece piece, PieceFile destFile, int destRank) {
-		switch (piece.pieceType) {
-			case WP:
-				// Basic pawn move for white, allowing 2-square move from starting position
-				return (piece.pieceRank == destRank - 1 && piece.pieceFile == destFile) || 
-					   (piece.pieceRank == 2 && destRank == 4 && piece.pieceFile == destFile);
-			case BP:
-				// Basic pawn move for black, allowing 2-square move from starting position
-				return (piece.pieceRank == destRank + 1 && piece.pieceFile == destFile) || 
-					   (piece.pieceRank == 7 && destRank == 5 && piece.pieceFile == destFile);
-			case WN:
-			case BN:
-				// Basic knight move
-				int rankDifference = Math.abs(piece.pieceRank - destRank);
-				int fileDifference = Math.abs(piece.pieceFile.ordinal() - destFile.ordinal());
-				return (rankDifference == 1 && fileDifference == 2) || (rankDifference == 2 && fileDifference == 1);
-			case WR:
-			case BR:
-				// Basic rook move (not accounting for pieces in the path)
-				return (piece.pieceFile == destFile || piece.pieceRank == destRank);
-			case WB:
-			case BB:
-				// Basic bishop move (not accounting for pieces in the path)
-				return Math.abs(piece.pieceRank - destRank) == Math.abs(piece.pieceFile.ordinal() - destFile.ordinal());
-			case WQ:
-			case BQ:
-				// Basic queen move (not accounting for pieces in the path)
-				int rankDiff = Math.abs(piece.pieceRank - destRank);
-				int fileDiff = Math.abs(piece.pieceFile.ordinal() - destFile.ordinal());
-				return (piece.pieceFile == destFile || piece.pieceRank == destRank || rankDiff == fileDiff);
-			case WK:
-			case BK:
-				// Basic king move
-				return Math.abs(piece.pieceRank - destRank) <= 1 && Math.abs(piece.pieceFile.ordinal() - destFile.ordinal()) <= 1;
-			default:
-				return false;
-		}
+
 	}
 	
 	

@@ -1,18 +1,19 @@
 package chess;
 
-public class Pawn extends Pieces {
-    public Pawn(String color, int row, int col) {
-        super(color, row, col);
+public class Pawn extends ReturnPiece {
+    public Pawn(PieceType type, PieceFile file, int rank) {
+        this.pieceType = type;
+        this.pieceFile = file;
+        this.pieceRank = rank;
     }
-
 
     @Override
-    public boolean validMove(int newRow, int newCol) {
-        return true; //fix later
+    public boolean validateMove(PieceFile targetFile, int targetRank) {
+        // Simplified example: Pawns move straight forward
+        // Additional logic needed for first move, capturing, en passant, promotion, etc.
+        if(this.pieceFile == targetFile && (this.pieceRank == targetRank - 1 || this.pieceRank == targetRank + 1)) {
+            return true;
+        }
+        return false;
     }
-
-    /*public String getColor() { //duno if i need this yet
-        return color;
-    } */
-    
 }
