@@ -1,26 +1,32 @@
 package chess;
 
 public abstract class Pieces {
-    private String color;
-    private int row;
-    private int col;
+    public String color;
+    public char file;
+    public int rank;
 
+    // pass in color, char file, AND int rank, not row and col
+    //letter is file and number is rank
 
-    public Pieces(String color, int row, int col) {
+    public Pieces(String color, char file, int rank) {
         this.color = color;
-        this.row = row;
-        this.col = col; 
+        this.file = file;
+        this.rank = rank; 
     }
 
-    public abstract boolean validMove(int newRow, int newCol);
+    public abstract boolean validMove(char newFile, int newRank);
 
-    public void move(int newRow, int newCol) {
-        if (validMove(newRow, newCol)) {
-            this.row = newRow;
-            this.col = newCol;
+    public void move(char newFile, int newRank) {
+        if (validMove(newFile, newRank)) {
+            this.file = newFile;
+            this.rank = newRank;
         } else {
-            // put stuff here later
+            // Handle invalid move here
+            System.out.println("Invalid move");
         }
     }
 
+    public String getColor() {
+        return color;
+    }
 }
