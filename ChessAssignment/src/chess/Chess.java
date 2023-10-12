@@ -93,7 +93,7 @@ public class Chess {
 
     // Further validations for legality of moves, checks, and checkmates would go here
 
-    // Validate the move (very basic check, many other validations missing)
+    // Validate the move (use piece-specific logic)
     if (isValidMove(movingPiece, destFile, destRank)) {
         // Perform the move, update piece's position
         movingPiece.pieceFile = destFile;
@@ -103,7 +103,6 @@ public class Chess {
         board.removeIf(piece -> piece.pieceFile == destFile && piece.pieceRank == destRank);
 
         // Check for check/checkmate/stalemate/draw scenarios here
-
     } else {
         rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
         return rp;
@@ -116,11 +115,27 @@ public class Chess {
     return rp;
 }
 
+private static boolean isValidMove(ReturnPiece piece, PieceFile destFile, int destRank) {
+    // Utilize specific piece logic for validation based on PieceType
+    switch (piece.pieceType) {
+        case WP, BP:
+            return ((Pawn) piece).isValidMove(destFile, destRank);
+        // case WN, BN:
+        //     return ((Knight) piece).isValidMove(destFile, destRank);
+        // case WB, BB:
+        //     return ((Bishop) piece).isValidMove(destFile, destRank);
+        // case WR, BR:
+        //     return ((Rook) piece).isValidMove(destFile, destRank);
+        // case WQ, BQ:
+        //     return ((Queen) piece).isValidMove(destFile, destRank);
+        // case WK, BK:
+        //     return ((King) piece).isValidMove(destFile, destRank);
+        default:
+            throw new IllegalArgumentException("Unexpected value: " + piece.pieceType);
+    }
+}
 
-	private static boolean isValidMove(ReturnPiece piece, PieceFile destFile, int destRank) {
 
-	}
-	
 	
 	
 	/**
@@ -133,38 +148,43 @@ public class Chess {
 		} else {
 			board = new ArrayList<>();
 		}
-
+	
+		// Pawns
 		for (PieceFile file : PieceFile.values()) {
-			ReturnPiece whitePawn = new ReturnPiece();
-			whitePawn.pieceFile = file;
-			whitePawn.pieceRank = 2;
-			whitePawn.pieceType = PieceType.WP;
-			board.add(whitePawn);
-	
-			ReturnPiece blackPawn = new ReturnPiece();
-			blackPawn.pieceFile = file;
-			blackPawn.pieceRank = 7;
-			blackPawn.pieceType = PieceType.BP;
-			board.add(blackPawn);
+			board.add(new Pawn(PieceType.WP, file, 2));
+			board.add(new Pawn(PieceType.BP, file, 7));
 		}
-
-		PieceType[] pieceTypes = 
-		{PieceType.WR, PieceType.WN, PieceType.WB, PieceType.WQ, PieceType.WK, PieceType.WB, PieceType.WN, PieceType.WR};
+	
+		// Other pieces
+		PieceType[] whitePieceTypes = 
+			{PieceType.WR, PieceType.WN, PieceType.WB, PieceType.WQ, PieceType.WK, PieceType.WB, PieceType.WN, PieceType.WR};
 		PieceType[] blackPieceTypes = 
-		{PieceType.BR, PieceType.BN, PieceType.BB, PieceType.BQ, PieceType.BK, PieceType.BB, PieceType.BN, PieceType.BR};
+			{PieceType.BR, PieceType.BN, PieceType.BB, PieceType.BQ, PieceType.BK, PieceType.BB, PieceType.BN, PieceType.BR};
 	
-		for (int i = 0; i < pieceTypes.length; i++) {
-			ReturnPiece whitePiece = new ReturnPiece();
-			whitePiece.pieceFile = PieceFile.values()[i];
-			whitePiece.pieceRank = 1;
-			whitePiece.pieceType = pieceTypes[i];
-			board.add(whitePiece);
+		for (int i = 0; i < whitePieceTypes.length; i++) {
+			PieceType whiteType = whitePieceTypes[i];
+			PieceType blackType = blackPieceTypes[i];
 	
-			ReturnPiece blackPiece = new ReturnPiece();
-			blackPiece.pieceFile = PieceFile.values()[i];
-			blackPiece.pieceRank = 8;
-			blackPiece.pieceType = blackPieceTypes[i];
-			board.add(blackPiece);
+			// Assuming a constructor similar to Pawn's for all piece classes
+			switch (whiteType) {
+				case WR -> board.add(new Rook(whiteType, PieceFile.values()[i], 1));
+				case WN -> board.add(new Knight(whiteType, PieceFile.values()[i], 1));
+				case WB -> board.add(new Bishop(whiteType, PieceFile.values()[i], 1));
+				case WQ -> board.add(new Queen(whiteType, PieceFile.values()[i], 1));
+				case WK -> board.add(new King(whiteType, PieceFile.values()[i], 1));
+				// Similarly for other white piece types...
+				default -> throw new IllegalArgumentException("Unexpected value: " + whiteType);
+			}
+	
+			switch (blackType) {
+				case BR -> board.add(new Rook(blackType, PieceFile.values()[i], 8));
+				case BN -> board.add(new Knight(blackType, PieceFile.values()[i], 8));
+				case BB -> board.add(new Bishop(blackType, PieceFile.values()[i], 8));
+				case BQ -> board.add(new Queen(blackType, PieceFile.values()[i], 8));
+				case BK -> board.add(new King(blackType, PieceFile.values()[i], 8));
+				// Similarly for other black piece types...
+				default -> throw new IllegalArgumentException("Unexpected value: " + blackType);
+			}
 		}
 		currentPlayer = Player.white;
 	}
