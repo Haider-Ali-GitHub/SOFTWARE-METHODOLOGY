@@ -120,16 +120,16 @@ private static boolean isValidMove(ReturnPiece piece, PieceFile destFile, int de
     switch (piece.pieceType) {
         case WP, BP:
             return ((Pawn) piece).isValidMove(destFile, destRank);
-        // case WN, BN:
-        //     return ((Knight) piece).isValidMove(destFile, destRank);
-        // case WB, BB:
-        //     return ((Bishop) piece).isValidMove(destFile, destRank);
-        // case WR, BR:
-        //     return ((Rook) piece).isValidMove(destFile, destRank);
-        // case WQ, BQ:
-        //     return ((Queen) piece).isValidMove(destFile, destRank);
-        // case WK, BK:
-        //     return ((King) piece).isValidMove(destFile, destRank);
+        case WN, BN:
+            return ((Knight) piece).isValidMove(destFile, destRank);
+        case WB, BB:
+            return ((Bishop) piece).isValidMove(destFile, destRank);
+        case WR, BR:
+            return ((Rook) piece).isValidMove(destFile, destRank);
+        case WQ, BQ:
+            return ((Queen) piece).isValidMove(destFile, destRank);
+        case WK, BK:
+            return ((King) piece).isValidMove(destFile, destRank);
         default:
             throw new IllegalArgumentException("Unexpected value: " + piece.pieceType);
     }
