@@ -18,10 +18,34 @@ public class Bishop extends ReturnPiece {
         int rankDifference = destRank - this.pieceRank;
 
         // Ensure the move is along a diagonal (i.e., abs(fileDifference) == abs(rankDifference))
-        if (Math.abs(fileDifference) == Math.abs(rankDifference)) {
-            return true;
+        if (Math.abs(fileDifference) != Math.abs(rankDifference)) {
+            return false;
         }
 
-        return false;
+        // Determine the direction of movement in file and rank
+        int fileDirection = (fileDifference > 0) ? 1 : -1;
+        int rankDirection = (rankDifference > 0) ? 1 : -1;
+
+        // Check for pieces in the path
+        PieceFile currentFile = this.pieceFile;
+        int currentRank = this.pieceRank;
+        while (true) {
+            // Move to the next square along the path
+            currentFile = PieceFile.values()[currentFile.ordinal() + fileDirection];
+            currentRank += rankDirection;
+
+            // Break if we've reached the destination
+            if (currentFile == destFile && currentRank == destRank) {
+                break;
+            }
+
+            // If there is a piece in the square, the move is not valid
+            if (Chess.getPieceAt(currentFile, currentRank) != null) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
+

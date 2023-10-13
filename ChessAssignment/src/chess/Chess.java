@@ -83,9 +83,6 @@ public class Chess {
     }
 	 // Check for special moves
 
-
-
-
     PieceFile sourceFile = PieceFile.valueOf(parts[0].substring(0, 1));
     int sourceRank = Integer.parseInt(parts[0].substring(1, 2));
 
@@ -139,7 +136,7 @@ public class Chess {
     return board;
 }
 
-private static ReturnPiece getPieceAt(PieceFile file, int rank) {
+public static ReturnPiece getPieceAt(PieceFile file, int rank) {
     for (ReturnPiece piece : board.piecesOnBoard) {
         if (piece.pieceFile == file && piece.pieceRank == rank) {
             return piece;
