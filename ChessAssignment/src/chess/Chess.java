@@ -67,6 +67,20 @@ public class Chess {
         rp.message = ReturnPlay.Message.ILLEGAL_MOVE;
         return rp;
     }
+	 // Check for special moves
+	if (parts[0].equals("resign")) {
+		ReturnPlay rp = new ReturnPlay();
+		rp.message = (currentPlayer == Player.white) ? 
+		ReturnPlay.Message.RESIGN_BLACK_WINS : 
+		ReturnPlay.Message.RESIGN_WHITE_WINS;
+		return rp;
+	}
+	
+	if (parts[1].endsWith("draw?")) {
+			ReturnPlay rp = new ReturnPlay();
+			rp.message = ReturnPlay.Message.DRAW;
+			return rp;
+	}
 
     PieceFile sourceFile = PieceFile.valueOf(parts[0].substring(0, 1));
     int sourceRank = Integer.parseInt(parts[0].substring(1, 2));
@@ -75,6 +89,8 @@ public class Chess {
     int destRank = Integer.parseInt(parts[1].substring(1, 2));
     
     ReturnPlay rp = new ReturnPlay(); 
+
+	
 
     ReturnPiece movingPiece = null; 
     for (ReturnPiece piece : board) {
@@ -100,7 +116,7 @@ public class Chess {
         movingPiece.pieceRank = destRank;
 
         // Remove any opponent piece at the destination
-        board.removeIf(piece -> piece.pieceFile == destFile && piece.pieceRank == destRank);
+        // board.removeIf(piece -> piece.pieceFile == destFile && piece.pieceRank == destRank);
 
         // Check for check/checkmate/stalemate/draw scenarios here
     } else {
@@ -135,9 +151,6 @@ private static boolean isValidMove(ReturnPiece piece, PieceFile destFile, int de
     }
 }
 
-
-	
-	
 	/**
 	 * This method should reset the game, and start from scratch.
 	 */
