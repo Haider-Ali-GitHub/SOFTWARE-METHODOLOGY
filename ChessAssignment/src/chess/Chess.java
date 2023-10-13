@@ -62,28 +62,29 @@ public class Chess {
 
     //...
 
-    String[] parts = move.split(" ");
-    
-    if (parts.length != 2) {
-        // error case
-        // ReturnPlay rp = new ReturnPlay();
-        board.message = ReturnPlay.Message.ILLEGAL_MOVE;
-        return board;
-    }
-	 // Check for special moves
-	if (parts[0].equals("resign")) {
-		// ReturnPlay rp = new ReturnPlay();
+	if (move.trim().equalsIgnoreCase("resign")) {
 		board.message = (currentPlayer == Player.white) ? 
 		ReturnPlay.Message.RESIGN_BLACK_WINS : 
 		ReturnPlay.Message.RESIGN_WHITE_WINS;
 		return board;
 	}
+    String[] parts = move.split(" ");
 
-	if (parts[1].endsWith("draw?")) {
-			ReturnPlay rp = new ReturnPlay();
-			rp.message = ReturnPlay.Message.DRAW;
-			return rp;
+		if (move.endsWith(" draw?"))  {
+			board.message = ReturnPlay.Message.DRAW;
+			return board;
 	}
+    
+		if (parts.length != 2 ) {
+			// error case
+			// ReturnPlay rp = new ReturnPlay();
+			board.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			return board;
+    }
+	 // Check for special moves
+
+
+
 
     PieceFile sourceFile = PieceFile.valueOf(parts[0].substring(0, 1));
     int sourceRank = Integer.parseInt(parts[0].substring(1, 2));
