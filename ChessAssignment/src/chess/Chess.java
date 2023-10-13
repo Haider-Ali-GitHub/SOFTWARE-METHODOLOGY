@@ -92,7 +92,6 @@ public class Chess {
     PieceFile destFile = PieceFile.valueOf(parts[1].substring(0, 1));
     int destRank = Integer.parseInt(parts[1].substring(1, 2));
     
-    // ReturnPlay rp = new ReturnPlay(); 
 
     ReturnPiece movingPiece = null; 
     for (ReturnPiece piece : board.piecesOnBoard) {
@@ -111,26 +110,48 @@ public class Chess {
 
     // Further validations for legality of moves, checks, and checkmates would go here
 
-    // Validate the move (use piece-specific logic)
-    if (isValidMove(movingPiece, destFile, destRank)) {
-        // Perform the move, update piece's position
-        movingPiece.pieceFile = destFile;
-        movingPiece.pieceRank = destRank;
-
-        // Remove any opponent piece at the destination
-        // board.removeIf(piece -> piece.pieceFile == destFile && piece.pieceRank == destRank);
-
-        // Check for check/checkmate/stalemate/draw scenarios here
-    } else {
-        board.message = ReturnPlay.Message.ILLEGAL_MOVE;
-        return board;
-    }
+	if (isValidMove(movingPiece, destFile, destRank)) {
+		// Check if there is a piece on the destination square
+		ReturnPiece targetPiece = getPieceAt(destFile, destRank);
+		if (targetPiece != null) {
+			// If the piece at the destination is the same color as movingPiece, the move is illegal
+			if (isSameColor(movingPiece, targetPiece)) {
+				board.message = ReturnPlay.Message.ILLEGAL_MOVE;
+				return board;
+			} else {
+				// Otherwise, capture the piece at the destination
+				board.piecesOnBoard.remove(targetPiece);
+			}
+		}
+	
+		// Update movingPiece's position
+		movingPiece.pieceFile = destFile;
+		movingPiece.pieceRank = destRank;
+	
+	} else {
+		board.message = ReturnPlay.Message.ILLEGAL_MOVE;
+		return board;
+	}
+	
 
     // Switch the current player
-    currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;
-;	
+    currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;	
     return board;
 }
+
+private static ReturnPiece getPieceAt(PieceFile file, int rank) {
+    for (ReturnPiece piece : board.piecesOnBoard) {
+        if (piece.pieceFile == file && piece.pieceRank == rank) {
+            return piece;
+        }
+    }
+    return null;
+}
+
+private static boolean isSameColor(ReturnPiece piece1, ReturnPiece piece2) {
+    return piece1.pieceType.toString().charAt(0) == piece2.pieceType.toString().charAt(0);
+}
+
 
 private static boolean isValidMove(ReturnPiece piece, PieceFile destFile, int destRank) {
     // Utilize specific piece logic for validation based on PieceType
