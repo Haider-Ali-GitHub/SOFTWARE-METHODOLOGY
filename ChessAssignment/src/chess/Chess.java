@@ -71,7 +71,7 @@ public class Chess {
 	}
     String[] parts = move.split(" ");
 
-	// if (parts.length != 3 ) {
+	// if (parts.length != 2 ) {
 	// 	// error case
 	// 	// ReturnPlay rp = new ReturnPlay();
 	// 	board.message = ReturnPlay.Message.ILLEGAL_MOVE;
@@ -116,20 +116,15 @@ public class Chess {
 			}
 		}
 	
-	// Update movingPiece's position
-	movingPiece.pieceFile = destFile;
-	movingPiece.pieceRank = destRank;
+		// Update movingPiece's position
+		movingPiece.pieceFile = destFile;
+		movingPiece.pieceRank = destRank;
 
-	if (move.endsWith(" draw?"))  {
+		if (move.endsWith(" draw?"))  {
 		board.message = ReturnPlay.Message.DRAW;
 		return board;
 	}
-
-	if (isCheckmate((currentPlayer == Player.white) ? Player.black : Player.white)) {
-	    board.message = (currentPlayer == Player.white) ? 
-                    ReturnPlay.Message.CHECKMATE_WHITE_WINS : 
-                    ReturnPlay.Message.CHECKMATE_BLACK_WINS;
-	}
+	
 	} else {
 		board.message = ReturnPlay.Message.ILLEGAL_MOVE;
 		return board;
@@ -151,72 +146,6 @@ public static ReturnPiece getPieceAt(PieceFile file, int rank) {
 
 private static boolean isSameColor(ReturnPiece piece1, ReturnPiece piece2) {
     return piece1.pieceType.toString().charAt(0) == piece2.pieceType.toString().charAt(0);
-}
-
-public static boolean isCheck(Player player) {
-    ReturnPiece king = null;
-    
-    // Find the king
-    for (ReturnPiece piece : board.piecesOnBoard) {
-        if ((piece.pieceType == PieceType.WK && player == Player.white) ||
-            (piece.pieceType == PieceType.BK && player == Player.black)) {
-            king = piece;
-            break;
-        }
-    }
-
-    // Check if any of the opponent's pieces can attack the king
-    for (ReturnPiece piece : board.piecesOnBoard) {
-        if ((piece.pieceType.toString().startsWith("W") && player == Player.black) ||
-            (piece.pieceType.toString().startsWith("B") && player == Player.white)) {
-            if (isValidMove(piece, king.pieceFile, king.pieceRank)) {
-                return true; // Player is in check
-            }
-        }
-    }
-    return false; // Player is not in check
-}
-
-public static boolean isCheckmate(Player player) {
-    // If the player is not in check, it cannot be checkmate
-    if (!isCheck(player)) {
-        return false;
-    }
-    
-    // Go through all the player's pieces and see if any have a legal move that removes the check
-    for (ReturnPiece piece : board.piecesOnBoard) {
-        if ((piece.pieceType.toString().startsWith("W") && player == Player.white) ||
-            (piece.pieceType.toString().startsWith("B") && player == Player.black)) {
-            PieceFile originalFile = piece.pieceFile;
-            int originalRank = piece.pieceRank;
-            
-            // Check each square on the board to see if moving this piece there would remove the check
-            for (PieceFile file : PieceFile.values()) {
-                for (int rank = 1; rank <= 8; rank++) {
-                    if (isValidMove(piece, file, rank)) {
-                        // Simulate the move
-                        piece.pieceFile = file;
-                        piece.pieceRank = rank;
-                        
-                        // Check if this move would remove the check
-                        if (!isCheck(player)) {
-                            // Undo the move
-                            piece.pieceFile = originalFile;
-                            piece.pieceRank = originalRank;
-                            return false; // Found a legal move that removes check
-                        }
-                        
-                        // Undo the move
-                        piece.pieceFile = originalFile;
-                        piece.pieceRank = originalRank;
-                    }
-                }
-            }
-        }
-    }
-    
-    // If no such move was found, it's checkmate
-    return true;
 }
 
 
