@@ -57,10 +57,16 @@ public class King extends ReturnPiece {
         }
 
         // check if the squares between the king and rook are emtpy
-
-        
-
-
+        int direction = (fileDifference > 0) ? 1 : -1;
+        int currentFile = this.pieceFile.ordinal() + direction;
+        while (currentFile != destFile.ordinal()) {
+            for (ReturnPiece piece : piecesOnBoard) {
+                if (piece.pieceFile.ordinal() == currentFile && piece.pieceRank == destRank) {
+                    return false;
+                }
+            }
+            currentFile += direction;
+        }
 
         return true;
     }
