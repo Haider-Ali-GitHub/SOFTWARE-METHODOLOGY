@@ -28,7 +28,7 @@ public class King extends ReturnPiece {
 
         return false;
     }
-
+    
     public boolean canCastle(PieceFile desFile, int destRank, List<ReturnPiece> piecesOnBoard) {
         if (this.pieceType != PieceType.WK && this.pieceType != PieceType.BK) {
             return false;

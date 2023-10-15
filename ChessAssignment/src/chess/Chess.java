@@ -105,15 +105,14 @@ public class Chess {
 	if (isValidMove(movingPiece, destFile, destRank)) {
 
 		if (movingPiece instanceof Pawn && 
-    lastPawnMovedTwoSquares != null &&
-    lastPawnMovedTwoSquares.pieceRank == sourceRank && 
-    lastPawnMovedTwoSquares.pieceFile == destFile &&
-    Math.abs(destFile.ordinal() - sourceFile.ordinal()) == 1 && 
-    Math.abs(destRank - sourceRank) == 1) {
-    
-    // Remove the pawn captured En Passant
-    removePieceAt(destFile, sourceRank);  // Adjust rank depending on the pawn's color
-}
+    	lastPawnMovedTwoSquares != null &&
+    	lastPawnMovedTwoSquares.pieceRank == sourceRank && 
+    	lastPawnMovedTwoSquares.pieceFile == destFile &&
+    	Math.abs(destFile.ordinal() - sourceFile.ordinal()) == 1 && 
+    	Math.abs(destRank - sourceRank) == 1) {
+    	// Remove the pawn captured En Passant
+   	 	removePieceAt(destFile, sourceRank);  // Adjust rank depending on the pawn's color
+		}
 		// Check if there is a piece on the destination square
 		ReturnPiece targetPiece = getPieceAt(destFile, destRank);
 		if (targetPiece != null) {
