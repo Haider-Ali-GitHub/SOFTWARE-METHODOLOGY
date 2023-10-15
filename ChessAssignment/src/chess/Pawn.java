@@ -12,6 +12,18 @@ public class Pawn extends ReturnPiece {
         int rankDifference = destRank - this.pieceRank;
         int fileDifference = destFile.ordinal() - this.pieceFile.ordinal();
 
+
+        // Check for En Passant
+        if (Math.abs(fileDifference) == 1 && rankDifference == 1 && Chess.lastPawnMovedTwoSquares != null) {
+            // For white pawns
+            if (pieceType == PieceType.WP && Chess.lastPawnMovedTwoSquares.pieceRank == this.pieceRank && Chess.lastPawnMovedTwoSquares.pieceFile == destFile) {
+                return true;
+            }
+            // For black pawns
+            else if (pieceType == PieceType.BP && Chess.lastPawnMovedTwoSquares.pieceRank == this.pieceRank && Chess.lastPawnMovedTwoSquares.pieceFile == destFile) {
+                return true;
+            }
+        }
         // Basic forward move
         if (fileDifference == 0) {
             if (pieceType == PieceType.WP && (rankDifference == 1 || 
