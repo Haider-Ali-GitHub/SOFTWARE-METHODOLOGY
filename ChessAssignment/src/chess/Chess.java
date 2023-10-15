@@ -1,6 +1,7 @@
 package chess;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import chess.ReturnPiece.PieceFile;
 import chess.ReturnPiece.PieceType;
@@ -104,15 +105,16 @@ public class Chess {
     // Further validations for legality of moves, checks, and checkmates would go here
 	if (isValidMove(movingPiece, destFile, destRank)) {
 
-		if (movingPiece instanceof Pawn && 
-    	lastPawnMovedTwoSquares != null &&
-    	lastPawnMovedTwoSquares.pieceRank == sourceRank && 
-    	lastPawnMovedTwoSquares.pieceFile == destFile &&
-    	Math.abs(destFile.ordinal() - sourceFile.ordinal()) == 1 && 
-    	Math.abs(destRank - sourceRank) == 1) {
-    	// Remove the pawn captured En Passant
-   	 	removePieceAt(destFile, sourceRank);  // Adjust rank depending on the pawn's color
-		}
+	if (movingPiece instanceof Pawn && 
+    lastPawnMovedTwoSquares != null &&
+    lastPawnMovedTwoSquares.pieceRank == sourceRank && 
+    lastPawnMovedTwoSquares.pieceFile == destFile &&
+    Math.abs(destFile.ordinal() - sourceFile.ordinal()) == 1 && 
+    Math.abs(destRank - sourceRank) == 1) {
+    
+    // Remove the pawn captured En Passant
+    removePieceAt(destFile, sourceRank);  // Adjust rank depending on the pawn's color
+}
 		// Check if there is a piece on the destination square
 		ReturnPiece targetPiece = getPieceAt(destFile, destRank);
 		if (targetPiece != null) {
@@ -126,7 +128,7 @@ public class Chess {
 			}
 		}
 
-		        // Add Pawn Promotion logic
+	// Add Pawn Promotion logic
 	if(movingPiece.pieceType == PieceType.WP && destRank == 8 || 
 		movingPiece.pieceType == PieceType.BP && destRank == 1) {
 	 	if(parts.length >= 3) { // Check if a promotion piece type is provided
@@ -153,6 +155,20 @@ public class Chess {
 		movingPiece.pieceFile = destFile;
 		movingPiece.pieceRank = destRank;
 
+            // After making the move, check if the opponent is in check
+            Player opponent = (currentPlayer == Player.white) ? Player.black : Player.white;
+			if (isInCheck(opponent)) {
+				// If opponent has no legal moves, it's checkmate
+				if (!hasLegalMoves(opponent)) {
+					board.message = (opponent == Player.white) ? 
+									 ReturnPlay.Message.CHECKMATE_BLACK_WINS :
+									 ReturnPlay.Message.CHECKMATE_WHITE_WINS;
+				} else {
+					// Otherwise, it's just a check
+					board.message = ReturnPlay.Message.CHECK;
+				}
+			}
+
 		if (move.endsWith(" draw?"))  {
 		board.message = ReturnPlay.Message.DRAW;
 		return board;
@@ -166,6 +182,103 @@ public class Chess {
     currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;	
     return board;
 }
+
+    public static  boolean isInCheck(Player currentPlayer) {
+        // Find the position of the King of the current player
+        PieceType kingType = (currentPlayer == Player.white) ? PieceType.WK : PieceType.BK;
+        ReturnPiece king = findKing(kingType);
+        
+        // Get all opponent pieces
+        List<ReturnPiece> opponentPieces = getOpponentPieces(currentPlayer);
+
+        // Check if any opponent piece can move to the King’s position
+        for (ReturnPiece piece : opponentPieces) {
+            if (canMoveToPosition(piece, king.pieceFile, king.pieceRank)) {
+                return true; // King is in check
+            }
+        }
+        return false; // King is not in check
+    }
+
+    private  static ReturnPiece findKing(PieceType kingType) {
+        for (ReturnPiece piece : board.piecesOnBoard) {
+            if (piece.pieceType == kingType) {
+                return piece;
+            }
+        }
+        return null; // King not found (should never happen in a valid game state)
+    }
+
+    private  static List<ReturnPiece> getOpponentPieces(Player currentPlayer) {
+        List<ReturnPiece> opponentPieces = new ArrayList<>();
+        for (ReturnPiece piece : board.piecesOnBoard) {
+            if ((currentPlayer == Player.white && piece.pieceType.name().charAt(0) == 'B') ||
+                (currentPlayer == Player.black && piece.pieceType.name().charAt(0) == 'W')) {
+                opponentPieces.add(piece);
+            }
+        }
+        return opponentPieces;
+    }
+
+	private static boolean simulateMove(ReturnPiece piece, PieceFile destFile, int destRank) {
+		// Store old position
+		PieceFile oldFile = piece.pieceFile;
+		int oldRank = piece.pieceRank;
+	
+		// Simulate move
+		piece.pieceFile = destFile;
+		piece.pieceRank = destRank;
+	
+		// Check if move puts/leaves the king in check
+		boolean ownKingInCheck = isInCheck(currentPlayer);
+	
+		// Undo move
+		piece.pieceFile = oldFile;
+		piece.pieceRank = oldRank;
+	
+		return ownKingInCheck;
+	}
+
+	public static boolean hasLegalMoves(Player player) {
+		for (ReturnPiece piece : board.piecesOnBoard) {
+			// Iterate through each piece of the current player
+			if ((player == Player.white && piece.pieceType.name().charAt(0) == 'W') ||
+				(player == Player.black && piece.pieceType.name().charAt(0) == 'B')) {
+				
+				// Check every possible destination square
+				for (PieceFile file : PieceFile.values()) {
+					for (int rank = 1; rank <= 8; rank++) {
+						// If the move is valid and doesn't put the player in check, return true
+						if (isValidMove(piece, file, rank) && !simulateMove(piece, file, rank)) {
+							return true;
+						}
+					}
+				}
+			}
+		}
+		// No legal moves were found
+		return false;
+	}
+	
+    private static boolean canMoveToPosition(ReturnPiece piece, ReturnPiece.PieceFile destFile, int destRank) {
+        if (piece instanceof King) {
+            return ((King) piece).isValidMove(destFile, destRank);
+        } else if (piece instanceof Queen) {
+            return ((Queen) piece).isValidMove(destFile, destRank);
+        } else if (piece instanceof Bishop) {
+            return ((Bishop) piece).isValidMove(destFile, destRank);
+        } else if (piece instanceof Rook) {
+            return ((Rook) piece).isValidMove(destFile, destRank);
+        } else if (piece instanceof Knight) {
+            return ((Knight) piece).isValidMove(destFile, destRank);
+        } else if (piece instanceof Pawn) {
+            return ((Pawn) piece).isValidMove(destFile, destRank);
+        }
+        // If piece type is unrecognized or unhandled, return false as a safe fallback
+        return false;
+    }
+    
+
 private static void removePieceAt(PieceFile file, int rank) {
     ReturnPiece pieceToRemove = null;
     for (ReturnPiece piece : board.piecesOnBoard) {
@@ -195,6 +308,9 @@ private static boolean isSameColor(ReturnPiece piece1, ReturnPiece piece2) {
 
 private static boolean isValidMove(ReturnPiece piece, PieceFile destFile, int destRank) {
     // Utilize specific piece logic for validation based on PieceType
+	if (simulateMove(piece, destFile, destRank)) {
+        return false;  // Move is not valid as it would put/leave own king in check
+    }
     switch (piece.pieceType) {
         case WP, BP:
             return ((Pawn) piece).isValidMove(destFile, destRank);
