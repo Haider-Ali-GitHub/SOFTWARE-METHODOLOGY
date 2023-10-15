@@ -115,7 +115,30 @@ public class Chess {
 				board.piecesOnBoard.remove(targetPiece);
 			}
 		}
-	
+
+		        // Add Pawn Promotion logic
+	if(movingPiece.pieceType == PieceType.WP && destRank == 8 || 
+		movingPiece.pieceType == PieceType.BP && destRank == 1) {
+	 	if(parts.length >= 3) { // Check if a promotion piece type is provided
+		 	try {
+					String promoTypeString = parts[2].toUpperCase();
+					if(promoTypeString.length() == 1 && "RNBQ".contains(promoTypeString)) {
+						PieceType promoType = PieceType.valueOf(
+							(movingPiece.pieceType == PieceType.WP ? "W" : "B") + promoTypeString);
+							 movingPiece.pieceType = promoType;
+					}else {
+							 board.message = ReturnPlay.Message.ILLEGAL_MOVE;
+							 return board;
+					}
+				} 	catch(IllegalArgumentException e) {
+				  		board.message = ReturnPlay.Message.ILLEGAL_MOVE;
+						return board;
+					}
+		} else {
+				// Default to Queen if no promotion type is provided
+				movingPiece.pieceType = movingPiece.pieceType == PieceType.WP ? PieceType.WQ : PieceType.BQ;
+			}
+		}
 		// Update movingPiece's position
 		movingPiece.pieceFile = destFile;
 		movingPiece.pieceRank = destRank;
@@ -123,13 +146,12 @@ public class Chess {
 		if (move.endsWith(" draw?"))  {
 		board.message = ReturnPlay.Message.DRAW;
 		return board;
-	}
+		}
 	
 	} else {
 		board.message = ReturnPlay.Message.ILLEGAL_MOVE;
 		return board;
-	}
-	
+		}
     // Switch the current player
     currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;	
     return board;
