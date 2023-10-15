@@ -45,10 +45,7 @@ public class Chess {
 
 	// ArrayList<ReturnPiece> board = new ArrayList<>();
 	public static ReturnPlay board; 
-
-
-
-
+	public static ReturnPiece lastPawnMovedTwoSquares = null;
 	/**
 	 * Plays the next move for whichever player has the turn.
 	 * 
@@ -101,8 +98,22 @@ public class Chess {
             return board;
     }
 
+	if (movingPiece instanceof Pawn && Math.abs(destRank - sourceRank) == 2) {
+		lastPawnMovedTwoSquares = movingPiece;
+	} 
     // Further validations for legality of moves, checks, and checkmates would go here
 	if (isValidMove(movingPiece, destFile, destRank)) {
+
+		if (movingPiece instanceof Pawn && 
+    lastPawnMovedTwoSquares != null &&
+    lastPawnMovedTwoSquares.pieceRank == sourceRank && 
+    lastPawnMovedTwoSquares.pieceFile == destFile &&
+    Math.abs(destFile.ordinal() - sourceFile.ordinal()) == 1 && 
+    Math.abs(destRank - sourceRank) == 1) {
+    
+    // Remove the pawn captured En Passant
+    removePieceAt(destFile, sourceRank);  // Adjust rank depending on the pawn's color
+}
 		// Check if there is a piece on the destination square
 		ReturnPiece targetPiece = getPieceAt(destFile, destRank);
 		if (targetPiece != null) {
@@ -155,6 +166,18 @@ public class Chess {
     // Switch the current player
     currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;	
     return board;
+}
+private static void removePieceAt(PieceFile file, int rank) {
+    ReturnPiece pieceToRemove = null;
+    for (ReturnPiece piece : board.piecesOnBoard) {
+        if (piece.pieceFile == file && piece.pieceRank == rank) {
+            pieceToRemove = piece;
+            break;
+        }
+    }
+    if (pieceToRemove != null) {
+        board.piecesOnBoard.remove(pieceToRemove);
+    }
 }
 
 public static ReturnPiece getPieceAt(PieceFile file, int rank) {
