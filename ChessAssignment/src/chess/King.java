@@ -62,6 +62,6 @@ public class King extends ReturnPiece {
             currentFile += direction;
         }
 
-        return true; // HERE TO MAKE COMPILER HAPPY
+        return true; 
     }
 }
