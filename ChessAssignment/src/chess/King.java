@@ -1,7 +1,9 @@
 package chess;
+import java.util.List;
 
 public class King extends ReturnPiece {
     private boolean hasMoved;
+
     public King(PieceType type, PieceFile file, int rank) {
         this.pieceType = type;
         this.pieceFile = file;
@@ -55,6 +57,10 @@ public class King extends ReturnPiece {
         } else {
             rookFile = PieceFile.a;
         }
+
+        // ReturnPiece rook = rook
+
+
 
         // isnt working for some reason
         // ReturnPiece rook = getPiece(rookFile, this.pieceRank);
