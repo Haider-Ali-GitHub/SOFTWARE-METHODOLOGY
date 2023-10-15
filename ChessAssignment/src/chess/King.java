@@ -33,14 +33,13 @@ public class King extends ReturnPiece {
     }
     
     public boolean canCastle(Player currentPlayer, PieceFile destFile, int destRank, List<ReturnPiece> piecesOnBoard) {
-        //
-
+    
         // check if the king is not in check
         if (Chess.isInCheck(currentPlayer)) {
             return false;
         }
 
-        // Check if theking has moved before
+        // Check if the king has moved before
         if (this.hasMoved) {
             return false;
         }
@@ -69,5 +68,17 @@ public class King extends ReturnPiece {
         }
 
         return true;
+    }
+    // DUNNO IF WE NEED THIS OR IF IT WORKS DOWN HERE DELETE IF NEEDED
+    public void swapPieces(PieceFile kingStartFile, int kingStartRank, PieceFile kingEndFile, int kingEndRank, PieceFile rookStartFile, int rookStartRank, PieceFile rookEndFile, int rookEndRank) {
+        // swap the king
+        ReturnPiece king = Chess.getPieceAt(kingStartFile, kingStartRank);
+        king.pieceFile = kingEndFile;
+        king.pieceRank = kingEndRank;
+
+        // swap the rook
+        ReturnPiece rook = Chess.getPieceAt(rookStartFile, rookStartRank);
+        rook.pieceFile = rookEndFile;
+        rook.pieceRank = rookEndRank;
     }
 }
