@@ -181,72 +181,67 @@ public class Chess {
 
 
 	private static boolean attemptCastling(King king, String move) {
-    boolean isKingsSide = move.endsWith("g1") || move.endsWith("g8");
-    if (king.hasMoved) return false;
 
-    // Find the rook 
-    PieceFile rookFile = isKingsSide ? PieceFile.h : PieceFile.a; 
-    int rank = king.pieceRank; // same rank as the king
-    Rook rook = null;
-    for (ReturnPiece piece : board.piecesOnBoard) {
-        if (piece instanceof Rook && piece.pieceFile == rookFile && piece.pieceRank == rank) {
-            rook = (Rook) piece;
-            break;
-        }
-    }
-    if (rook == null || rook.hasMoved) return false;
+    	boolean isKingsSide = move.endsWith("g1") || move.endsWith("g8");
+	    if (king.hasMoved) return false;
+    	// Find the rook 
+    	PieceFile rookFile = isKingsSide ? PieceFile.h : PieceFile.a; 
+    	int rank = king.pieceRank; // same rank as the king
+    	Rook rook = null;
+    	for (ReturnPiece piece : board.piecesOnBoard) {
+        	if (piece instanceof Rook && piece.pieceFile == rookFile && piece.pieceRank == rank) {
+            	rook = (Rook) piece;
+            	break;
+        	}
+   	 	}
 
-    // There are no pieces between the king and the rook.
-    PieceFile[] filesBetween = isKingsSide ? new PieceFile[]{PieceFile.f, PieceFile.g} : new PieceFile[]{PieceFile.b, PieceFile.c, PieceFile.d};
-    for (PieceFile file : filesBetween) {
-        if (getPieceAt(file, rank) != null) {
-            return false; // There is a piece between the king and the rook
-        }
-    }
+    	if (rook == null || rook.hasMoved) return false;
 
-    // The king is not in check, the squares it passes through are not attacked, and the square it moves to is not attacked.
-    if (isInCheck(currentPlayer)) {
-        return false; // Cannot castle while in check
-    }
+    	//no pieces between the king and the rook.
+    	PieceFile[] filesBetween = isKingsSide ? new PieceFile[]{PieceFile.f, PieceFile.g} : new PieceFile[]{PieceFile.b, PieceFile.c, PieceFile.d};
+    	for (PieceFile file : filesBetween) {
+        	if (getPieceAt(file, rank) != null) {
+            	return false; // There is a piece between the king and the rook
+        	}
+    	}
 
-    //Check if the squares the king passes through are under attack
-    for (PieceFile file : filesBetween) {
-        // Temporarily move the king to the new position
-        king.pieceFile = file;
-        // Check if the king would be in check in the new position
-        if (isInCheck(currentPlayer)) {
-            king.pieceFile = isKingsSide ? PieceFile.e : (currentPlayer == Player.white ? PieceFile.e : PieceFile.e); // Reset to original position
-            return false; // Cannot move through or into check
-        }
-    }
+    	// The king is not in check, the squares it passes through are not attacked, and the square it moves to is not attacked.
+    	if (isInCheck(currentPlayer)) {
+        	return false; // Cannot castle while in check
+    	}
 
-    // If all conditions are met, move the King and the Rook to their new positions
-    king.pieceFile = isKingsSide ? PieceFile.g : PieceFile.c;
-    rook.pieceFile = isKingsSide ? PieceFile.f : PieceFile.d;
+    	//Check if the squares the king passes through are under attack
+    	for (PieceFile file : filesBetween) {
+        	// Temporarily move the king to the new position
+        	king.pieceFile = file;
+        	// Check if the king would be in check in the new position
+        	if (isInCheck(currentPlayer)) {
+            	king.pieceFile = isKingsSide ? PieceFile.e : (currentPlayer == Player.white ? PieceFile.e : PieceFile.e); // Reset to original position
+            	return false; // Cannot move through or into check
+        	}
+    	}
+    	//move the King and the Rook to their new positions
+    	king.pieceFile = isKingsSide ? PieceFile.g : PieceFile.c;
+    	rook.pieceFile = isKingsSide ? PieceFile.f : PieceFile.d;
 
-    // Update their moved status
-    king.hasMoved = true;
-    rook.hasMoved = true;
+	    // Update moved status
+    	king.hasMoved = true;
+    	rook.hasMoved = true;
 
-    return true; // Castling move was successful
-}
-
+	    return true; // Castling move was successful
+	}
 
     public static  boolean isInCheck(Player currentPlayer) {
-        // Find the position of the King of the current player
         PieceType kingType = (currentPlayer == Player.white) ? PieceType.WK : PieceType.BK;
         ReturnPiece king = findKing(kingType);
-        
-        // Get all opponent pieces
         List<ReturnPiece> opponentPieces = getOpponentPieces(currentPlayer);
-
         // Check if any opponent piece can move to the King’s position
         for (ReturnPiece piece : opponentPieces) {
             if (canMoveToPosition(piece, king.pieceFile, king.pieceRank)) {
                 return true; // King is in check
             }
         }
-        return false; // King is not in check
+        return false; // King isnt in check
     }
 
     private  static ReturnPiece findKing(PieceType kingType) {
@@ -255,14 +250,13 @@ public class Chess {
                 return piece;
             }
         }
-        return null; // King not found (should never happen in a valid game state)
+        return null; // King not found (never will happen)
     }
 
     private  static List<ReturnPiece> getOpponentPieces(Player currentPlayer) {
         List<ReturnPiece> opponentPieces = new ArrayList<>();
         for (ReturnPiece piece : board.piecesOnBoard) {
-            if ((currentPlayer == Player.white && piece.pieceType.name().charAt(0) == 'B') ||
-                (currentPlayer == Player.black && piece.pieceType.name().charAt(0) == 'W')) {
+            if ((currentPlayer == Player.white && piece.pieceType.name().charAt(0) == 'B') || (currentPlayer == Player.black && piece.pieceType.name().charAt(0) == 'W')) {
                 opponentPieces.add(piece);
             }
         }
@@ -291,20 +285,15 @@ public class Chess {
 	public static boolean hasLegalMoves(Player player) {
 		boolean kingInCheck = isInCheck(player);
 		for (ReturnPiece piece : board.piecesOnBoard) {
-			// Iterate through each piece of the current player
-			if ((player == Player.white && piece.pieceType.name().charAt(0) == 'W') ||
-				(player == Player.black && piece.pieceType.name().charAt(0) == 'B')) {
+			if ((player == Player.white && piece.pieceType.name().charAt(0) == 'W') ||(player == Player.black && piece.pieceType.name().charAt(0) == 'B')) {
 				// Check every possible destination square
 				for (PieceFile file : PieceFile.values()) {
 					for (int rank = 1; rank <= 8; rank++) {
-						// If the move is valid and doesn't put the player in check, return true
-						// System.out.println(" piece : " + piece.pieceType + " trying to move to file: " + file + " rank: " + rank);
-
-						// If the king is in check, validate that the move alleviates the check
+						// relieves the king from check.
 						if (isValidMove(piece, file, rank)) {
 							if (kingInCheck) {
 								if (simulateMove(piece, file, rank)) {
-									continue;  // Skip this move if it doesn’t alleviate the check
+									continue;  // Skip this move if it doesn’t relieves the king from check.
 								}
 							} else {
 								if (!simulateMove(piece, file, rank)) {
@@ -320,7 +309,6 @@ public class Chess {
 		return false;
 	}
 	
-	
     private static boolean canMoveToPosition(ReturnPiece piece, ReturnPiece.PieceFile destFile, int destRank) {
         if (piece instanceof King) {
             return ((King) piece).isValidMove(destFile, destRank);
@@ -335,60 +323,58 @@ public class Chess {
         } else if (piece instanceof Pawn) {
             return ((Pawn) piece).isValidMove(destFile, destRank);
         }
-        // If piece type is unrecognized or unhandled, return false as a safe fallback
+        // return false as a safe fallback
         return false;
     }
-    
 
-private static void removePieceAt(PieceFile file, int rank) {
-    ReturnPiece pieceToRemove = null;
-    for (ReturnPiece piece : board.piecesOnBoard) {
-        if (piece.pieceFile == file && piece.pieceRank == rank) {
-            pieceToRemove = piece;
-            break;
-        }
-    }
-    if (pieceToRemove != null) {
-        board.piecesOnBoard.remove(pieceToRemove);
-    }
-}
+    private static void removePieceAt(PieceFile file, int rank) {
+    	ReturnPiece pieceToRemove = null;
+    	for (ReturnPiece piece : board.piecesOnBoard) {
+        	if (piece.pieceFile == file && piece.pieceRank == rank) {
+        	    pieceToRemove = piece;
+        		break;
+        	}
+    	}
+   		if (pieceToRemove != null) {
+        	board.piecesOnBoard.remove(pieceToRemove);
+    	}
+	}
 
-public static ReturnPiece getPieceAt(PieceFile file, int rank) {
-    for (ReturnPiece piece : board.piecesOnBoard) {
-        if (piece.pieceFile == file && piece.pieceRank == rank) {
-            return piece;
-        }
-    }
-    return null;
-}
+	public static ReturnPiece getPieceAt(PieceFile file, int rank) {
+    	for (ReturnPiece piece : board.piecesOnBoard) {
+        	if (piece.pieceFile == file && piece.pieceRank == rank) {
+            	return piece;
+        	}
+    	}
+    	return null;
+	}
 
-private static boolean isSameColor(ReturnPiece piece1, ReturnPiece piece2) {
-    return piece1.pieceType.toString().charAt(0) == piece2.pieceType.toString().charAt(0);
-}
+	private static boolean isSameColor(ReturnPiece piece1, ReturnPiece piece2) {
+   	 return piece1.pieceType.toString().charAt(0) == piece2.pieceType.toString().charAt(0);
+	}
 
-
-private static boolean isValidMove(ReturnPiece piece, PieceFile destFile, int destRank) {
-    // Utilize specific piece logic for validation based on PieceType
-	if (simulateMove(piece, destFile, destRank)) {
-        return false;  // Move is not valid as it would put/leave own king in check
-    }
-    switch (piece.pieceType) {
-        case WP, BP:
-            return ((Pawn) piece).isValidMove(destFile, destRank);
-        case WN, BN:
-            return ((Knight) piece).isValidMove(destFile, destRank);
-        case WB, BB:
-            return ((Bishop) piece).isValidMove(destFile, destRank);
-        case WR, BR:
-            return ((Rook) piece).isValidMove(destFile, destRank);
-        case WQ, BQ:
-            return ((Queen) piece).isValidMove(destFile, destRank);
-        case WK, BK:
-            return ((King) piece).isValidMove(destFile, destRank);
-        default:
-            throw new IllegalArgumentException("Unexpected value: " + piece.pieceType);
-    }
-}
+	private static boolean isValidMove(ReturnPiece piece, PieceFile destFile, int destRank) {
+		// Utilize specific piece logic for validation based on PieceType
+		if (simulateMove(piece, destFile, destRank)) {
+			return false;  // Move is not valid as it would put/leave own king in check
+		}
+		switch (piece.pieceType) {
+			case WP, BP:
+				return ((Pawn) piece).isValidMove(destFile, destRank);
+			case WN, BN:
+				return ((Knight) piece).isValidMove(destFile, destRank);
+			case WB, BB:
+				return ((Bishop) piece).isValidMove(destFile, destRank);
+			case WR, BR:
+				return ((Rook) piece).isValidMove(destFile, destRank);
+			case WQ, BQ:
+				return ((Queen) piece).isValidMove(destFile, destRank);
+			case WK, BK:
+				return ((King) piece).isValidMove(destFile, destRank);
+			default:
+				throw new IllegalArgumentException("Unexpected value: " + piece.pieceType);
+		}
+	}
 
 	/**
 	 * This method should reset the game, and start from scratch.
