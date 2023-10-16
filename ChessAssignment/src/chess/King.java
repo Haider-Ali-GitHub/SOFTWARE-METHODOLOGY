@@ -23,15 +23,36 @@ public class King extends ReturnPiece {
         int fileDifference = destFile.ordinal() - this.pieceFile.ordinal();
         int rankDifference = destRank - this.pieceRank;
 
+        // Check if the move is a castling move
+        if (Math.abs(fileDifference) == 2 && rankDifference == 0) {
+            // Define the current Player variable and initialize it
+            Player currentPlayer = (this.pieceType == PieceType.WK) ? Player.white : Player.black;
+
+            // Call the canCastle method to check if the move is valid
+            List<ReturnPiece> piecesOnBoard = Chess.getPiecesOnBoard();
+            boolean canCastle = canCastle(currentPlayer, destFile, destRank, piecesOnBoard);
+            if (canCastle) {
+                System.out.println("can castle returned true");
+                hasMoved = true;
+                if (fileDifference > 0) {
+                    swapPieces(PieceFile.h, destRank, PieceFile.f, destRank, destFile, destRank, PieceFile.g, destRank);
+                } else {
+                    swapPieces(PieceFile.a, destRank, PieceFile.d, destRank, destFile, destRank, PieceFile.c, destRank);
+                }
+                return true;
+            } else {
+                System.out.println("can castle returned false");
+            }
+        }
+
         // Ensure the move is only one square in any direction
         if (Math.abs(fileDifference) <= 1 && Math.abs(rankDifference) <= 1) {
             hasMoved = true;
             return true;
         }
-
         return false;
     }
-    
+
     public boolean canCastle(Player currentPlayer, PieceFile destFile, int destRank, List<ReturnPiece> piecesOnBoard) {
     
         // check if the king is not in check
@@ -66,7 +87,7 @@ public class King extends ReturnPiece {
             }
             currentFile += direction;
         }
-
+        hasMoved = true;
         return true;
     }
     // DUNNO IF WE NEED THIS OR IF IT WORKS DOWN HERE DELETE IF NEEDED
