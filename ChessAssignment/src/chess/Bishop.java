@@ -31,13 +31,21 @@ public class Bishop extends ReturnPiece {
         int currentRank = this.pieceRank;
         while (true) {
             // Move to the next square along the path
-            currentFile = PieceFile.values()[currentFile.ordinal() + fileDirection];
-            currentRank += rankDirection;
+            int newFileOrdinal = currentFile.ordinal() + fileDirection;
+            int newRank = currentRank + rankDirection;
 
             // Break if we've reached the destination
-            if (currentFile == destFile && currentRank == destRank) {
+            if (newFileOrdinal == destFile.ordinal() && newRank == destRank) {
                 break;
             }
+
+            // Ensure the new file and rank are within bounds
+            if (newFileOrdinal < 0 || newFileOrdinal >= PieceFile.values().length || newRank < 1 || newRank > 8) {
+                return false;
+            }
+
+            currentFile = PieceFile.values()[newFileOrdinal];
+            currentRank = newRank;
 
             // If there is a piece in the square, the move is not valid
             if (Chess.getPieceAt(currentFile, currentRank) != null) {
@@ -48,4 +56,3 @@ public class Bishop extends ReturnPiece {
         return true;
     }
 }
-
