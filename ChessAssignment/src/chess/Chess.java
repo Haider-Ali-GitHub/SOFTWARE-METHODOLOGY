@@ -224,7 +224,6 @@ public class Chess {
     	king.pieceFile = isKingsSide ? PieceFile.g : PieceFile.c;
     	rook.pieceFile = isKingsSide ? PieceFile.f : PieceFile.d;
 
-	    // Update moved status
     	king.hasMoved = true;
     	rook.hasMoved = true;
 
@@ -354,9 +353,8 @@ public class Chess {
 	}
 
 	private static boolean isValidMove(ReturnPiece piece, PieceFile destFile, int destRank) {
-		// Utilize specific piece logic for validation based on PieceType
 		if (simulateMove(piece, destFile, destRank)) {
-			return false;  // Move is not valid as it would put/leave own king in check
+			return false;  
 		}
 		switch (piece.pieceType) {
 			case WP, BP:
@@ -393,33 +391,26 @@ public class Chess {
 		}
 	
 		// Other pieces
-		PieceType[] whitePieceTypes = 
-			{PieceType.WR, PieceType.WN, PieceType.WB, PieceType.WQ, PieceType.WK, PieceType.WB, PieceType.WN, PieceType.WR};
-		PieceType[] blackPieceTypes = 
-			{PieceType.BR, PieceType.BN, PieceType.BB, PieceType.BQ, PieceType.BK, PieceType.BB, PieceType.BN, PieceType.BR};
+		PieceType[] whitePieceTypes = {PieceType.WR, PieceType.WN, PieceType.WB, PieceType.WQ, PieceType.WK, PieceType.WB, PieceType.WN, PieceType.WR};
+		PieceType[] blackPieceTypes = {PieceType.BR, PieceType.BN, PieceType.BB, PieceType.BQ, PieceType.BK, PieceType.BB, PieceType.BN, PieceType.BR};
 	
 		for (int i = 0; i < whitePieceTypes.length; i++) {
 			PieceType whiteType = whitePieceTypes[i];
 			PieceType blackType = blackPieceTypes[i];
-	
-			// Assuming a constructor similar to Pawn's for all piece classes
 			switch (whiteType) {
 				case WR -> board.piecesOnBoard.add(new Rook(whiteType, PieceFile.values()[i], 1));
 				case WN -> board.piecesOnBoard.add(new Knight(whiteType, PieceFile.values()[i], 1));
 				case WB -> board.piecesOnBoard.add(new Bishop(whiteType, PieceFile.values()[i], 1));
 				case WQ -> board.piecesOnBoard.add(new Queen(whiteType, PieceFile.values()[i], 1));
 				case WK -> board.piecesOnBoard.add(new King(whiteType, PieceFile.values()[i], 1));
-				// Similarly for other white piece types...
 				default -> throw new IllegalArgumentException("Unexpected value: " + whiteType);
 			}
-	
 			switch (blackType) {
 				case BR -> board.piecesOnBoard.add(new Rook(blackType, PieceFile.values()[i], 8));
 				case BN -> board.piecesOnBoard.add(new Knight(blackType, PieceFile.values()[i], 8));
 				case BB -> board.piecesOnBoard.add(new Bishop(blackType, PieceFile.values()[i], 8));
 				case BQ -> board.piecesOnBoard.add(new Queen(blackType, PieceFile.values()[i], 8));
 				case BK ->board.piecesOnBoard.add(new King(blackType, PieceFile.values()[i], 8));
-				// Similarly for other black piece types...
 				default -> throw new IllegalArgumentException("Unexpected value: " + blackType);
 			}
 		}
