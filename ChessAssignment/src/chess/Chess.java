@@ -1,3 +1,7 @@
+// Software Methodolgy CS213 
+// Prof. Sesh Venugopal
+// By Haider Ali and Abdur Rehman Aqil
+
 package chess;
 
 import java.util.ArrayList;
