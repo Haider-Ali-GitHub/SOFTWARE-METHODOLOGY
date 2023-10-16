@@ -1,10 +1,12 @@
 package chess;
 
 public class Rook extends ReturnPiece {
+    public boolean hasMoved;
     public Rook(PieceType type, PieceFile file, int rank) {
         this.pieceType = type;
         this.pieceFile = file;
         this.pieceRank = rank;
+        this.hasMoved = false;
     }
 
     public boolean isValidMove(PieceFile destFile, int destRank) {
