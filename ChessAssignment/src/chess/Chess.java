@@ -58,157 +58,133 @@ public class Chess {
 	 */
 	public static ReturnPlay play(String move) {
 
-    //...
-	board.message = null; 
+		board.message = null; 
 
-	if (move.trim().equalsIgnoreCase("resign")) {
-		board.message = (currentPlayer == Player.white) ? 
-		ReturnPlay.Message.RESIGN_BLACK_WINS : 
-		ReturnPlay.Message.RESIGN_WHITE_WINS;
-		return board;
-	}
-    String[] parts = move.split(" ");
+		if (move.trim().equalsIgnoreCase("resign")) {
+			board.message = (currentPlayer == Player.white) ? 
+			ReturnPlay.Message.RESIGN_BLACK_WINS : 
+			ReturnPlay.Message.RESIGN_WHITE_WINS;
+			return board;
+		}
 
-	// if (parts.length != 2 ) {
-	// 	// error case
-	// 	// ReturnPlay rp = new ReturnPlay();
-	// 	board.message = ReturnPlay.Message.ILLEGAL_MOVE;
-	// 	return board;
-    // }
-	 // Check for special moves
+    	String[] parts = move.split(" ");
+		// Check for special moves
+	    PieceFile sourceFile = PieceFile.valueOf(parts[0].substring(0, 1));
+    	int sourceRank = Integer.parseInt(parts[0].substring(1, 2));
 
-    PieceFile sourceFile = PieceFile.valueOf(parts[0].substring(0, 1));
-    int sourceRank = Integer.parseInt(parts[0].substring(1, 2));
+	 	PieceFile destFile = PieceFile.valueOf(parts[1].substring(0, 1));
+    	int destRank = Integer.parseInt(parts[1].substring(1, 2));
+		
+		ReturnPiece movingPiece = null; 
+    	for (ReturnPiece piece : board.piecesOnBoard) {
+        	if (piece.pieceFile == sourceFile && piece.pieceRank == sourceRank) {
+            	movingPiece = piece;
+            	break;
+        	}
+    	}
 
-    PieceFile destFile = PieceFile.valueOf(parts[1].substring(0, 1));
-    int destRank = Integer.parseInt(parts[1].substring(1, 2));
-    
-
-    ReturnPiece movingPiece = null; 
-    for (ReturnPiece piece : board.piecesOnBoard) {
-        if (piece.pieceFile == sourceFile && piece.pieceRank == sourceRank) {
-            movingPiece = piece;
-            break;
-        }
-    }
-
-    // Check if no piece was found or it's not the current player's piece
-    if (movingPiece == null || (currentPlayer == Player.white && movingPiece.pieceType.toString().startsWith("B")) ||
-        (currentPlayer == Player.black && movingPiece.pieceType.toString().startsWith("W"))) {
-            board.message = ReturnPlay.Message.ILLEGAL_MOVE;
+   		 // Check if no piece was found or it's not the current player's piece
+    	if (movingPiece == null || (currentPlayer == Player.white && movingPiece.pieceType.toString().startsWith("B")) || (currentPlayer == Player.black && movingPiece.pieceType.toString().startsWith("W"))) {
+        	board.message = ReturnPlay.Message.ILLEGAL_MOVE;
             return board;
-    }
+    	}
 	
-	if (movingPiece instanceof King && !((King) movingPiece).hasMoved) {
-		boolean isCastlingMove = move.equals("e1 g1") || move.equals("e1 c1") || move.equals("e8 g8") || move.equals("e8 c8");
-		if (isCastlingMove) {
-			boolean canCastle = attemptCastling((King) movingPiece, move);
-			if (canCastle) {
-				((King) movingPiece).hasMoved = true;  
-				// Switch the current player and continue the game.
-				currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;
-				return board; // Castling was successful, and the game continues.
-			} else {
-				board.message = ReturnPlay.Message.ILLEGAL_MOVE;
-				return board; 
+		if (movingPiece instanceof King && !((King) movingPiece).hasMoved) {
+			boolean isCastlingMove = move.equals("e1 g1") || move.equals("e1 c1") || move.equals("e8 g8") || move.equals("e8 c8");
+			if (isCastlingMove) {
+				boolean canCastle = attemptCastling((King) movingPiece, move);
+				if (canCastle) {
+					((King) movingPiece).hasMoved = true;  
+					// Switch the current player
+					currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;
+					return board; // Castling was successful
+				} else {
+					board.message = ReturnPlay.Message.ILLEGAL_MOVE;
+					return board; 
+				}
 			}
 		}
-	}
 
-
-	if (movingPiece instanceof Pawn && Math.abs(destRank - sourceRank) == 2) {
-		lastPawnMovedTwoSquares = movingPiece;
-	} 
+		if (movingPiece instanceof Pawn && Math.abs(destRank - sourceRank) == 2) {
+			lastPawnMovedTwoSquares = movingPiece;
+		} 
  
-	if (isValidMove(movingPiece, destFile, destRank)) {
-
-	if (movingPiece instanceof Pawn && 
-    lastPawnMovedTwoSquares != null &&
-    lastPawnMovedTwoSquares.pieceRank == sourceRank && 
-    lastPawnMovedTwoSquares.pieceFile == destFile &&
-    Math.abs(destFile.ordinal() - sourceFile.ordinal()) == 1 && 
-    Math.abs(destRank - sourceRank) == 1) {
-    
-    // Remove the pawn captured En Passant
-    removePieceAt(destFile, sourceRank);  // Adjust rank depending on the pawn's color
-}
-		// Check if there is a piece on the destination square
-		ReturnPiece targetPiece = getPieceAt(destFile, destRank);
-		if (targetPiece != null) {
-			// If the piece at the destination is the same color as movingPiece, the move is illegal
-			if (isSameColor(movingPiece, targetPiece)) {
-				board.message = ReturnPlay.Message.ILLEGAL_MOVE;
-				return board;
-			} else {
-				// Otherwise, capture the piece at the destination
-				board.piecesOnBoard.remove(targetPiece);
+		if (isValidMove(movingPiece, destFile, destRank)) {
+			if (movingPiece instanceof Pawn && lastPawnMovedTwoSquares != null && lastPawnMovedTwoSquares.pieceRank == sourceRank 
+				&& lastPawnMovedTwoSquares.pieceFile == destFile && Math.abs(destFile.ordinal() - sourceFile.ordinal()) == 1 
+				&& Math.abs(destRank - sourceRank) == 1) {
+					//En Passant
+    				removePieceAt(destFile, sourceRank); 
 			}
-		}
+			// Check if there is a piece on the destination square
+			ReturnPiece targetPiece = getPieceAt(destFile, destRank);
+			if (targetPiece != null) {
+				// If the piece at the destination is the same color as movingPiece
+				if (isSameColor(movingPiece, targetPiece)) {
+					board.message = ReturnPlay.Message.ILLEGAL_MOVE;
+					return board;
+				} else {
+					//capture the piece at the destination
+					board.piecesOnBoard.remove(targetPiece);
+				}
+			}
 
-	// Add Pawn Promotion logic
-	if(movingPiece.pieceType == PieceType.WP && destRank == 8 || 
-		movingPiece.pieceType == PieceType.BP && destRank == 1) {
-	 	if(parts.length >= 3) { // Check if a promotion piece type is provided
-		 	try {
-					String promoTypeString = parts[2].toUpperCase();
-					if(promoTypeString.length() == 1 && "RNBQ".contains(promoTypeString)) {
-						PieceType promoType = PieceType.valueOf(
-							(movingPiece.pieceType == PieceType.WP ? "W" : "B") + promoTypeString);
-							 movingPiece.pieceType = promoType;
-					}else {
+			// Add Pawn Promotion logic
+			if(movingPiece.pieceType == PieceType.WP && destRank == 8 || movingPiece.pieceType == PieceType.BP && destRank == 1) {
+	 			if(parts.length >= 3) { // Check if a promotion piece type is provided
+		 			try {
+						String promoTypeString = parts[2].toUpperCase();
+						if(promoTypeString.length() == 1 && "RNBQ".contains(promoTypeString)) {
+							PieceType promoType = PieceType.valueOf((movingPiece.pieceType == PieceType.WP ? "W" : "B") + promoTypeString);
+							movingPiece.pieceType = promoType;
+						}else {
 							 board.message = ReturnPlay.Message.ILLEGAL_MOVE;
 							 return board;
-					}
-				} 	catch(IllegalArgumentException e) {
-				  		board.message = ReturnPlay.Message.ILLEGAL_MOVE;
+						}
+					}catch(IllegalArgumentException e){
+						board.message = ReturnPlay.Message.ILLEGAL_MOVE;
 						return board;
 					}
-		} else {
-				// Default to Queen if no promotion type is provided
-				movingPiece.pieceType = movingPiece.pieceType == PieceType.WP ? PieceType.WQ : PieceType.BQ;
+				} else {
+					// Default to Queen if no promotion type is provided
+					movingPiece.pieceType = movingPiece.pieceType == PieceType.WP ? PieceType.WQ : PieceType.BQ;
+				}
 			}
-		}
-		// Update movingPiece's position
-		movingPiece.pieceFile = destFile;
-		movingPiece.pieceRank = destRank;
 
-            // After making the move, check if the opponent is in check
+			// Update movingPiece's position
+			movingPiece.pieceFile = destFile;
+			movingPiece.pieceRank = destRank;
+
+            //check if the opponent is in check
             Player opponent = (currentPlayer == Player.white) ? Player.black : Player.white;
 			if (isInCheck(opponent)) {
 				// If opponent has no legal moves, it's checkmate
 				if (!hasLegalMoves(opponent)) {
-					board.message = (opponent == Player.white) ? 
-									 ReturnPlay.Message.CHECKMATE_BLACK_WINS :
-									 ReturnPlay.Message.CHECKMATE_WHITE_WINS;
+					board.message = (opponent == Player.white) ? ReturnPlay.Message.CHECKMATE_BLACK_WINS : ReturnPlay.Message.CHECKMATE_WHITE_WINS;
 				} else {
-					// Otherwise, it's just a check
 					board.message = ReturnPlay.Message.CHECK;
 				}
 			}
 
-		if (move.endsWith(" draw?"))  {
-		board.message = ReturnPlay.Message.DRAW;
-		return board;
+			if (move.endsWith(" draw?"))  {
+			board.message = ReturnPlay.Message.DRAW;
+			return board;
+			}
+		} else {
+			board.message = ReturnPlay.Message.ILLEGAL_MOVE;
+			return board;
 		}
-	
-	} else {
-		board.message = ReturnPlay.Message.ILLEGAL_MOVE;
-		return board;
-		}
-    // Switch the current player
-    currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;	
-    return board;
-}
+    	// Switch the current player
+    	currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;	
+    	return board;
+	}
 
 
-private static boolean attemptCastling(King king, String move) {
-    // Determine if it's king's side or queen's side castling based on the move
+	private static boolean attemptCastling(King king, String move) {
     boolean isKingsSide = move.endsWith("g1") || move.endsWith("g8");
-
-    // Neither the king nor the rook has moved.
     if (king.hasMoved) return false;
 
-    // Find the rook involved in the castling
+    // Find the rook 
     PieceFile rookFile = isKingsSide ? PieceFile.h : PieceFile.a; 
     int rank = king.pieceRank; // same rank as the king
     Rook rook = null;
