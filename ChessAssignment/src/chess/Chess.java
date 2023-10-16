@@ -98,6 +98,23 @@ public class Chess {
             board.message = ReturnPlay.Message.ILLEGAL_MOVE;
             return board;
     }
+	
+	if (movingPiece instanceof King && !((King) movingPiece).hasMoved) {
+		boolean isCastlingMove = move.equals("e1 g1") || move.equals("e1 c1") || move.equals("e8 g8") || move.equals("e8 c8");
+		if (isCastlingMove) {
+			boolean canCastle = attemptCastling((King) movingPiece, move);
+			if (canCastle) {
+				((King) movingPiece).hasMoved = true;  
+				// Switch the current player and continue the game.
+				currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;
+				return board; // Castling was successful, and the game continues.
+			} else {
+				board.message = ReturnPlay.Message.ILLEGAL_MOVE;
+				return board; 
+			}
+		}
+	}
+
 
 	if (movingPiece instanceof Pawn && Math.abs(destRank - sourceRank) == 2) {
 		lastPawnMovedTwoSquares = movingPiece;
@@ -182,6 +199,62 @@ public class Chess {
     currentPlayer = (currentPlayer == Player.white) ? Player.black : Player.white;	
     return board;
 }
+
+
+private static boolean attemptCastling(King king, String move) {
+    // Determine if it's king's side or queen's side castling based on the move
+    boolean isKingsSide = move.endsWith("g1") || move.endsWith("g8");
+
+    // Neither the king nor the rook has moved.
+    if (king.hasMoved) return false;
+
+    // Find the rook involved in the castling
+    PieceFile rookFile = isKingsSide ? PieceFile.h : PieceFile.a; 
+    int rank = king.pieceRank; // same rank as the king
+    Rook rook = null;
+    for (ReturnPiece piece : board.piecesOnBoard) {
+        if (piece instanceof Rook && piece.pieceFile == rookFile && piece.pieceRank == rank) {
+            rook = (Rook) piece;
+            break;
+        }
+    }
+    if (rook == null || rook.hasMoved) return false;
+
+    // There are no pieces between the king and the rook.
+    PieceFile[] filesBetween = isKingsSide ? new PieceFile[]{PieceFile.f, PieceFile.g} : new PieceFile[]{PieceFile.b, PieceFile.c, PieceFile.d};
+    for (PieceFile file : filesBetween) {
+        if (getPieceAt(file, rank) != null) {
+            return false; // There is a piece between the king and the rook
+        }
+    }
+
+    // The king is not in check, the squares it passes through are not attacked, and the square it moves to is not attacked.
+    if (isInCheck(currentPlayer)) {
+        return false; // Cannot castle while in check
+    }
+
+    //Check if the squares the king passes through are under attack
+    for (PieceFile file : filesBetween) {
+        // Temporarily move the king to the new position
+        king.pieceFile = file;
+        // Check if the king would be in check in the new position
+        if (isInCheck(currentPlayer)) {
+            king.pieceFile = isKingsSide ? PieceFile.e : (currentPlayer == Player.white ? PieceFile.e : PieceFile.e); // Reset to original position
+            return false; // Cannot move through or into check
+        }
+    }
+
+    // If all conditions are met, move the King and the Rook to their new positions
+    king.pieceFile = isKingsSide ? PieceFile.g : PieceFile.c;
+    rook.pieceFile = isKingsSide ? PieceFile.f : PieceFile.d;
+
+    // Update their moved status
+    king.hasMoved = true;
+    rook.hasMoved = true;
+
+    return true; // Castling move was successful
+}
+
 
     public static  boolean isInCheck(Player currentPlayer) {
         // Find the position of the King of the current player
