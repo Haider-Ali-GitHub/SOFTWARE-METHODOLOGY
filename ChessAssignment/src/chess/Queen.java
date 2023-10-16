@@ -9,12 +9,12 @@ public class Queen extends ReturnPiece {
     }
 
     public boolean isValidMove(PieceFile destFile, int destRank) {
-        // Ensure the piece being moved is a queen
+
         if (this.pieceType != PieceType.WQ && this.pieceType != PieceType.BQ) {
             return false;
         }
 
-        // Check the differences in file and rank between the current and destination squares
+    
         int fileDifference = destFile.ordinal() - this.pieceFile.ordinal();
         int rankDifference = destRank - this.pieceRank;
 
@@ -32,11 +32,10 @@ public class Queen extends ReturnPiece {
 
         // Moving horizontally
         if (rankDifference == 0 && fileDifference != 0) {
-            // Check if the path is clear
             int step = (fileDifference > 0) ? 1 : -1;
             for(int i = 1; i < Math.abs(fileDifference); i++) {
                 if(Chess.getPieceAt(PieceFile.values()[this.pieceFile.ordinal() + i * step], this.pieceRank) != null) {
-                    return false; // A piece is blocking the way
+                    return false; 
                 }
             }
             return true;
