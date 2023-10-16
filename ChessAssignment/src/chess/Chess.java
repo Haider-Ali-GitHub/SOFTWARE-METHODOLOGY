@@ -102,7 +102,7 @@ public class Chess {
 	if (movingPiece instanceof Pawn && Math.abs(destRank - sourceRank) == 2) {
 		lastPawnMovedTwoSquares = movingPiece;
 	} 
-    // Further validations for legality of moves, checks, and checkmates would go here
+ 
 	if (isValidMove(movingPiece, destFile, destRank)) {
 
 	if (movingPiece instanceof Pawn && 
@@ -240,17 +240,28 @@ public class Chess {
 	}
 
 	public static boolean hasLegalMoves(Player player) {
+		boolean kingInCheck = isInCheck(player);
 		for (ReturnPiece piece : board.piecesOnBoard) {
 			// Iterate through each piece of the current player
 			if ((player == Player.white && piece.pieceType.name().charAt(0) == 'W') ||
 				(player == Player.black && piece.pieceType.name().charAt(0) == 'B')) {
-				
 				// Check every possible destination square
 				for (PieceFile file : PieceFile.values()) {
 					for (int rank = 1; rank <= 8; rank++) {
 						// If the move is valid and doesn't put the player in check, return true
-						if (isValidMove(piece, file, rank) && !simulateMove(piece, file, rank)) {
-							return true;
+						// System.out.println(" piece : " + piece.pieceType + " trying to move to file: " + file + " rank: " + rank);
+
+						// If the king is in check, validate that the move alleviates the check
+						if (isValidMove(piece, file, rank)) {
+							if (kingInCheck) {
+								if (simulateMove(piece, file, rank)) {
+									continue;  // Skip this move if it doesn’t alleviate the check
+								}
+							} else {
+								if (!simulateMove(piece, file, rank)) {
+									return true;  // This move is legal and doesn’t put the player in check
+								}
+							}
 						}
 					}
 				}
@@ -259,6 +270,7 @@ public class Chess {
 		// No legal moves were found
 		return false;
 	}
+	
 	
     private static boolean canMoveToPosition(ReturnPiece piece, ReturnPiece.PieceFile destFile, int destRank) {
         if (piece instanceof King) {
